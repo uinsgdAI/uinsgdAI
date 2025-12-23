@@ -107,7 +107,7 @@
     const sendBtn = document.getElementById('send-btn');
     const typingLabel = document.getElementById('typing');
 
-    async function sendMessage() {
+   async function sendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
 
@@ -116,8 +116,9 @@
         setLoading(true);
 
         try {
-            // PERBAIKAN: Menggunakan versi v1 (Stable) bukan v1beta
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            // PERBAIKAN 1: Menggunakan model gemini-2.0-flash (Model standar yang stabil di Des 2025)
+            // PERBAIKAN 2: Menggunakan endpoint v1 (Stable)
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -125,7 +126,7 @@
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `Sistem: Kamu adalah 'uinsgdAI', asisten belajar UIN Sunan Gunung Djati. Karakter: Islami, ramah, sangat sabar, humanis. Gunakan panggilan 'Ananda'. Buka dengan salam. Jika ditanya Matematika/Kombinatorika, jelaskan konsepnya pelan-pelan. Input User: ${text}`
+                            text: `Sistem: Kamu adalah uinsgdAI, asisten belajar UIN Bandung. Karakter: Islami, ramah, humanis. Sapaan: Ananda. Buka dengan salam. Jika ditanya Matematika, jelaskan pelan-pelan. Input User: ${text}`
                         }]
                     }]
                 })
@@ -134,16 +135,16 @@
             const data = await response.json();
 
             if (!response.ok) {
-                // Diagnosa jika model tidak ditemukan lagi
                 throw new Error(data.error?.message || `HTTP Error ${response.status}`);
             }
 
+            // Struktur respon tetap sama
             const botReply = data.candidates[0].content.parts[0].text;
             appendMessage(botReply, 'bot');
 
         } catch (error) {
             console.error("Detail Error:", error);
-            appendMessage(`Mohon maaf Ananda, sepertinya ada kendala teknis (Error: ${error.message}). Coba pastikan API Key masih aktif ya. 😊`, 'bot error-box');
+            appendMessage(`Mohon maaf Ananda, sepertinya ada kendala (Error: ${error.message}). Coba pastikan API Key Ananda aktif di Google AI Studio ya. 😊`, 'bot error-box');
         } finally {
             setLoading(false);
         }
