@@ -167,21 +167,19 @@
         typingIndicator.style.display = 'block';
 
         try {
-            // URL Endpoint untuk Google Gemini 1.5 Flash (Versi Cepat & Gratis)
+            // URL yang sudah diperbaiki (Pastikan tidak ada spasi di ujung)
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AIzaSyBmCcnhbDOUXp0KCPo7lavCEFIe1I3oYDE}`;
 
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `Sistem: Kamu adalah 'uinsgdAI', asisten belajar dari UIN Sunan Gunung Djati Bandung. 
+                            text: `Sistem: Kamu adalah uinsgdAI, asisten belajar UIN Sunan Gunung Djati Bandung. 
                             Karaktermu: Islami, humanis, dan soft-spoken (lemah lembut). 
                             Selalu mulai dengan salam 'Assalamualaikum'. Panggil pengguna dengan 'Ananda'. 
-                            Jika ditanya tentang Matematika/Kombinatorika, jelaskan dengan sabar.
+                            Jika ditanya tentang Matematika/Kombinatorika, jelaskan dengan sabar langkah demi langkah.
                             
                             Pertanyaan User: ${userText}`
                         }]
@@ -190,18 +188,23 @@
             });
 
             const data = await response.json();
-            
-            // Mengambil teks balasan dari struktur JSON Gemini
-            const botReply = data.candidates[0].content.parts[0].text;
+            console.log("Respon API:", data); // Untuk cek di console jika ada masalah lagi
 
-            typingIndicator.style.display = 'none';
-            chatWindow.innerHTML += `<div class="message bot">${botReply}</div>`;
+            // Pengaman: Cek apakah data dari Google ada isinya
+            if (data.candidates && data.candidates[0].content) {
+                const botReply = data.candidates[0].content.parts[0].text;
+                typingIndicator.style.display = 'none';
+                chatWindow.innerHTML += `<div class="message bot">${botReply}</div>`;
+            } else {
+                throw new Error("Format data tidak sesuai");
+            }
+
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Detail Error:', error);
             typingIndicator.style.display = 'none';
-            chatWindow.innerHTML += `<div class="message bot">Mohon maaf Ananda, sepertinya ada kendala teknis. Pastikan API Key sudah terpasang dengan benar ya.</div>`;
+            chatWindow.innerHTML += `<div class="message bot">Mohon maaf Ananda, sepertinya ada kendala teknis pada sistem kami. Coba periksa koneksi atau API Key Ananda ya. 😊</div>`;
         }
     }
 
