@@ -10,6 +10,7 @@
             --primary-green: #1a5d1a;
             --gold: #d4af37;
             --light-green: #f0f4f0;
+            --user-bubble: #1a5d1a;
         }
 
         * {
@@ -21,44 +22,34 @@
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #e8eee8 0%, #d4e4d4 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
         #chat-container {
             width: 100%;
             max-width: 500px;
-            height: 90vh;
-            max-height: 800px;
+            height: 95vh;
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(26, 93, 26, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border-top: 6px solid var(--gold);
         }
 
         header {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #124012 100%);
+            background: var(--primary-green);
             color: white;
             padding: 20px;
             text-align: center;
         }
 
-        header h1 {
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-        }
-
-        header p {
-            font-size: 0.85rem;
-            opacity: 0.95;
-            font-style: italic;
-        }
+        header h1 { font-size: 1.4rem; letter-spacing: 1px; }
+        header p { font-size: 0.8rem; opacity: 0.9; font-style: italic; margin-top: 4px; }
 
         #chat-window {
             flex: 1;
@@ -66,93 +57,73 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 15px;
+            background: #fdfdfd;
         }
 
         .message {
             max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 18px;
+            padding: 12px 16px;
+            border-radius: 15px;
             font-size: 0.95rem;
-            line-height: 1.6;
-            animation: slideIn 0.3s ease;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .bot {
             background: var(--light-green);
-            color: #2c2c2c;
+            color: #333;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
+            border-bottom-left-radius: 2px;
             border-left: 4px solid var(--primary-green);
         }
 
         .user {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #124012 100%);
+            background: var(--user-bubble);
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 2px;
         }
 
-        .error-message {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            color: #856404;
+        .typing {
+            font-size: 0.8rem;
+            color: #888;
+            padding: 10px 20px;
+            display: none;
+            font-style: italic;
         }
 
         #input-area {
-            padding: 20px;
+            padding: 15px;
             background: white;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #eee;
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
-        #user-input {
+        input {
             flex: 1;
-            padding: 14px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 30px;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
             outline: none;
-            font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
-        }
-
-        #user-input:focus {
-            border-color: var(--primary-green);
         }
 
         button {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #124012 100%);
+            background: var(--primary-green);
             color: white;
             border: none;
-            padding: 14px 28px;
-            border-radius: 30px;
+            padding: 0 20px;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.95rem;
         }
 
-        button:hover:not(:disabled) {
-            opacity: 0.9;
-        }
+        button:disabled { background: #ccc; }
 
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .typing { 
-            font-size: 0.85rem; 
-            color: #888; 
-            display: none; 
-            padding: 0 20px 12px;
-            font-style: italic;
-        }
+        .error-box { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
     </style>
 </head>
 <body>
@@ -166,145 +137,98 @@
     <div id="chat-window">
         <div class="message bot">
             Assalamualaikum wr wb, Ananda Rifki 😊<br><br>
-            Saya asisten belajar dari UIN Sunan Gunung Djati Bandung. Ada yang ingin kita pelajari bersama hari ini?
+            Saya asisten belajar dari UIN Sunan Gunung Djati Bandung. Ada materi Matematika atau hal lain yang ingin kita diskusikan hari ini?
         </div>
     </div>
 
     <div id="typing" class="typing">uinsgdAI sedang berpikir...</div>
 
     <div id="input-area">
-        <input type="text" id="user-input" placeholder="Ketik pertanyaan..." autocomplete="off">
+        <input type="text" id="user-input" placeholder="Tuliskan pesan Ananda..." autocomplete="off">
         <button id="send-btn" onclick="sendMessage()">Kirim</button>
     </div>
 </div>
-    
+
 <script>
-    // ==============================================
-    // GANTI API KEY ANANDA DI SINI (dalam kutip!)
-    // ==============================================
-    const API_KEY = 'AIzaSyBmCcnhbDOUXp0KCPo7lavCEFIe1I3oYDE';
+    // ==========================================
+    // 1. MASUKKAN API KEY GEMINI ANANDA DI SINI
+    // ==========================================
+    const API_KEY = 'AIzaSyBmCcnhbDOUXp0KCPo7lavCEFIe1I3oYDE'; 
+
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const typingLabel = document.getElementById('typing');
 
     async function sendMessage() {
-        const input = document.getElementById('user-input');
-        const chatWindow = document.getElementById('chat-window');
-        const typing = document.getElementById('typing');
-        const btn = document.getElementById('send-btn');
-        
-        const text = input.value.trim();
+        const text = userInput.value.trim();
         if (!text) return;
 
-        // Tampilkan pesan user
-        addMessage(text, 'user');
-        input.value = '';
+        // Tambah pesan user ke layar
+        appendMessage(text, 'user');
+        userInput.value = '';
         
-        // Disable UI
-        input.disabled = true;
-        btn.disabled = true;
-        typing.style.display = 'block';
+        // Aktifkan mode loading
+        setLoading(true);
 
         try {
-            // Panggil API Gemini
-            const response = await callGemini(text);
-            
-            if (response?.candidates?.[0]?.content?.parts?.[0]?.text) {
-                const reply = response.candidates[0].content.parts[0].text;
-                addMessage(reply, 'bot');
-            } else {
-                throw new Error('Respons tidak valid');
+            // Memanggil Google Gemini API
+            // Menggunakan versi v1beta yang paling mendukung model Flash
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `Sistem: Kamu adalah 'uinsgdAI', asisten belajar UIN Sunan Gunung Djati. 
+                            Karakter: Islami, ramah, sangat sabar, humanis. 
+                            Gunakan panggilan 'Ananda'. Buka dengan salam. 
+                            Jika ditanya Matematika/Kombinatorika, jelaskan konsepnya pelan-pelan. 
+                            
+                            Input User: ${text}`
+                        }]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error?.message || `HTTP Error ${response.status}`);
             }
 
+            // Ambil teks jawaban
+            const botReply = data.candidates[0].content.parts[0].text;
+            appendMessage(botReply, 'bot');
+
         } catch (error) {
-            console.error('Error:', error);
-            showError(error);
+            console.error("Detail Error:", error);
+            appendMessage(`Mohon maaf Ananda, sepertinya ada kendala teknis (Error: ${error.message}). Pastikan API Key benar dan internet lancar ya.`, 'bot error-box');
         } finally {
-            input.disabled = false;
-            btn.disabled = false;
-            typing.style.display = 'none';
-            input.focus();
+            setLoading(false);
         }
     }
 
-    async function callGemini(userText) {
-        const prompt = `Kamu adalah uinsgdAI, asisten belajar UIN Sunan Gunung Djati Bandung.
-
-KARAKTER:
-- Islami, humanis, lemah lembut
-- Sabar dalam menjelaskan
-- Sapaan: "Ananda"
-- Buka dengan "Assalamualaikum" jika awal percakapan
-- Gunakan emoji bijak untuk kehangatan
-
-CARA MENJAWAB:
-- Detail tapi mudah dipahami
-- Matematika/Kombinatorika: langkah demi langkah
-- Jujur jika tidak tahu
-- Berikan contoh konkret
-
-Pertanyaan: ${userText}`;
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    temperature: 0.8,
-                    maxOutputTokens: 1024
-                }
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        return await response.json();
-    }
-
-    function addMessage(text, type) {
-        const chatWindow = document.getElementById('chat-window');
-        const div = document.createElement('div');
-        div.className = `message ${type}`;
-        div.innerHTML = text.replace(/\n/g, '<br>');
-        chatWindow.appendChild(div);
+    function appendMessage(text, type) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${type}`;
+        msgDiv.innerHTML = text.replace(/\n/g, '<br>'); // Agar enter terbaca
+        chatWindow.appendChild(msgDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    function showError(error) {
-        let msg = '';
-        const err = error.message || '';
-
-        if (err.includes('Failed to fetch')) {
-            msg = `⚠️ <strong>Gagal terhubung</strong><br><br>
-                <strong>Penyebab:</strong><br>
-                1. File dibuka dengan double-click (file:///)<br>
-                   → Gunakan Python HTTP Server atau Live Server<br><br>
-                2. API Key salah<br>
-                   → Generate baru di <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a><br><br>
-                3. Koneksi internet bermasalah`;
-        } else if (err.includes('400')) {
-            msg = `❌ <strong>API Key tidak valid</strong><br><br>
-                Generate key baru di:<br>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>`;
-        } else if (err.includes('429')) {
-            msg = `⏰ <strong>Kuota API habis</strong><br><br>
-                Tunggu beberapa saat, lalu coba lagi ya 😊`;
-        } else {
-            msg = `❌ <strong>Error:</strong> ${err}`;
-        }
-
-        addMessage(msg, 'bot error-message');
+    function setLoading(isLoading) {
+        typingLabel.style.display = isLoading ? 'block' : 'none';
+        userInput.disabled = isLoading;
+        sendBtn.disabled = isLoading;
+        if (!isLoading) userInput.focus();
     }
 
-    // Event listener
-    document.getElementById('user-input').addEventListener('keypress', (e) => {
+    // Listener tombol Enter
+    userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
-    });
-
-    window.addEventListener('load', () => {
-        document.getElementById('user-input').focus();
     });
 </script>
 
