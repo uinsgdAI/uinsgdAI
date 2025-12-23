@@ -11,19 +11,20 @@
             --gold: #d4af37;
             --light-green: #f0f4f0;
             --user-bubble: #1a5d1a;
+            --bg-color: #eef2ee;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #e8eee8 0%, #d4e4d4 100%);
+            background-color: var(--bg-color);
             height: 100vh;
             display: flex; justify-content: center; align-items: center;
         }
 
         #chat-container {
-            width: 100%; max-width: 500px; height: 95vh;
+            width: 100%; max-width: 480px; height: 92vh;
             background: white; border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; overflow: hidden;
@@ -32,16 +33,16 @@
 
         header {
             background: var(--primary-green); color: white;
-            padding: 20px; text-align: center;
+            padding: 18px; text-align: center;
         }
 
-        header h1 { font-size: 1.4rem; letter-spacing: 1px; }
-        header p { font-size: 0.8rem; opacity: 0.9; font-style: italic; margin-top: 4px; }
+        header h1 { font-size: 1.3rem; letter-spacing: 1px; }
+        header p { font-size: 0.75rem; opacity: 0.9; font-style: italic; margin-top: 3px; }
 
         #chat-window {
             flex: 1; overflow-y: auto; padding: 20px;
             display: flex; flex-direction: column; gap: 15px;
-            background: #fdfdfd;
+            background: #ffffff;
         }
 
         .message {
@@ -50,7 +51,7 @@
             animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .bot {
             background: var(--light-green); color: #333;
@@ -63,19 +64,32 @@
             align-self: flex-end; border-bottom-right-radius: 2px;
         }
 
-        .typing { font-size: 0.8rem; color: #888; padding: 10px 20px; display: none; font-style: italic; }
+        .typing { font-size: 0.8rem; color: #888; padding: 5px 20px; display: none; font-style: italic; }
 
         #input-area { padding: 15px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; }
 
-        input { flex: 1; padding: 12px 20px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        input { flex: 1; padding: 12px 18px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 0.9rem; }
+        input:focus { border-color: var(--primary-green); }
 
-        button { background: var(--primary-green); color: white; border: none; padding: 0 20px; border-radius: 25px; cursor: pointer; font-weight: 600; }
+        button { 
+            background: var(--primary-green); color: white; border: none; 
+            padding: 0 22px; border-radius: 25px; cursor: pointer; 
+            font-weight: 600; transition: 0.2s;
+        }
+        button:hover { background: #124012; }
         button:disabled { background: #ccc; }
 
-        .error-box { background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+        .error-box { background: #fee2e2; color: #b91c1c; font-size: 0.85rem; border: 1px solid #f87171; }
+        
+        #api-config {
+            position: absolute; top: 10px; right: 10px;
+            font-size: 0.7rem; color: var(--primary-green); cursor: pointer; text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+
+<div id="api-config" onclick="resetKey()">Ganti API Key</div>
 
 <div id="chat-container">
     <header>
@@ -86,11 +100,11 @@
     <div id="chat-window">
         <div class="message bot">
             Assalamualaikum wr wb, Ananda Rifki 😊<br><br>
-            Saya asisten belajar dari UIN Sunan Gunung Djati Bandung. Ada materi Matematika atau hal lain yang ingin kita diskusikan hari ini?
+            Saya asisten belajar dari UIN Sunan Gunung Djati Bandung. Ada materi Matematika (Kombinatorika) atau hal lain yang ingin kita diskusikan hari ini?
         </div>
     </div>
 
-    <div id="typing" class="typing">uinsgdAI sedang berpikir...</div>
+    <div id="typing" class="typing">uinsgdAI sedang mengetik...</div>
 
     <div id="input-area">
         <input type="text" id="user-input" placeholder="Tuliskan pesan Ananda..." autocomplete="off">
@@ -99,55 +113,76 @@
 </div>
 
 <script>
-    // MASUKKAN API KEY GEMINI ANANDA DI SINI
-    const API_KEY = 'AIzaSyBmCcnhbDOUXp0KCPo7lavCEFIe1I3oYDE'; 
+    // --- KONFIGURASI API KEY ---
+    // Agar tidak diblokir GitHub, kita simpan Key di browser (localStorage)
+    let API_KEY = localStorage.getItem('GROQ_KEY');
+
+    if (!API_KEY || API_KEY === 'null') {
+        API_KEY = prompt("Selamat Datang di uinsgdAI!\n\nUntuk memulai, silakan masukkan API Key Groq Ananda (awalan gsk_...):");
+        if (API_KEY) {
+            localStorage.setItem('GROQ_KEY', API_KEY);
+            alert("API Key berhasil disimpan di browser. Selamat belajar!");
+        }
+    }
+
+    function resetKey() {
+        localStorage.removeItem('GROQ_KEY');
+        location.reload();
+    }
 
     const chatWindow = document.getElementById('chat-window');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
     const typingLabel = document.getElementById('typing');
 
-   async function sendMessage() {
+    async function sendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
+        if (!API_KEY) { alert("API Key belum diisi!"); resetKey(); return; }
 
+        // Tampilkan pesan user
         appendMessage(text, 'user');
         userInput.value = '';
         setLoading(true);
 
         try {
-            // GUNAKAN JALUR v1beta DAN MODEL 1.5 FLASH (Paling Stabil buat Free Tier)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            // Menggunakan Groq Cloud API (Super Cepat & Gratis)
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `Sistem: Kamu adalah uinsgdAI, asisten belajar UIN Bandung yang ramah. Sapaan: Ananda. Buka dengan salam. Jika ditanya Matematika, jelaskan pelan-pelan. Input User: ${text}`
-                        }]
-                    }]
+                    model: "llama-3.1-8b-instant",
+                    messages: [
+                        {
+                            role: "system",
+                            content: `Kamu adalah uinsgdAI, asisten belajar dari UIN Sunan Gunung Djati Bandung. 
+                            Karaktermu: Islami, humanis, dan sangat lembut (soft-spoken).
+                            Gunakan sapaan 'Ananda'. Selalu buka dengan salam.
+                            Jika user bertanya tentang Matematika atau Kombinatorika, jelaskan konsepnya dengan sangat sabar langkah demi langkah.
+                            Tujuanmu adalah membuat user merasa nyaman dan betah belajar seperti dalam wawancara Ibu Guru yang ramah.`
+                        },
+                        { role: "user", content: text }
+                    ],
+                    temperature: 0.7
                 })
             });
 
             const data = await response.json();
 
-            // Jika masih error kuota, tampilkan pesan ramah
-            if (response.status === 429) {
-                throw new Error("Kuota API sedang penuh. Mohon tunggu 1 menit lalu coba lagi ya, Ananda. 😊");
-            }
-
             if (!response.ok) {
-                throw new Error(data.error?.message || `HTTP Error ${response.status}`);
+                if(response.status === 401) throw new Error("API Key salah atau tidak valid.");
+                throw new Error(data.error?.message || "Terjadi kesalahan pada server.");
             }
 
-            const botReply = data.candidates[0].content.parts[0].text;
+            const botReply = data.choices[0].message.content;
             appendMessage(botReply, 'bot');
 
         } catch (error) {
-            console.error("Detail Error:", error);
-            appendMessage(`Mohon maaf Ananda, sepertinya ada kendala (Error: ${error.message})`, 'bot error-box');
+            console.error("Error:", error);
+            appendMessage(`Mohon maaf Ananda, sepertinya ada kendala teknik (Error: ${error.message}).`, 'bot error-box');
         } finally {
             setLoading(false);
         }
